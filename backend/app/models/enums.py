@@ -23,3 +23,11 @@ class ServiceCallStatus(str, Enum):
     IN_PROGRESS = "In-Progress"
     COMPLETED = "Completed"
     FAILED = "Failed"
+
+#Operations Admin: Full CRUD permissions across branches, ATMs, service calls, and user accounts.
+#Field Technician: Can view assigned ATMs, trigger service call status changes, and attach diagnostic reports.
+#Auditor (Read-Only): Can view analytics dashboards, inspect data grids, and search system logs without write permissions.
+class UserRole(str, Enum):
+    OPERATIONS_ADMIN = "Operations Admin"
+    FIELD_TECHNICIAN = "Field Technician"
+    AUDITOR = "Auditor"

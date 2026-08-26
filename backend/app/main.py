@@ -4,7 +4,7 @@ Day 4 - FastAPI
 
 from fastapi import FastAPI
 
-from app.routers import atms, service_calls
+from app.routers import atms, service_calls, auth
 
 app = FastAPI(
     title="RoboPulse Fleet Command Center",
@@ -17,6 +17,9 @@ app.include_router(atms.router)
 
 # Register new router
 # app.include_router(service_calls.router)
+
+#Auth routers
+app.include_router(auth.router)
 
 # Sample health endpoint to validate the application is running correctly
 @app.get("/health", tags=["health"])
