@@ -16,7 +16,7 @@ app = FastAPI(
 app.include_router(atms.router)
 
 # Register new router
-# app.include_router(service_calls.router)
+app.include_router(service_calls.router)
 
 #Auth routers
 app.include_router(auth.router)
