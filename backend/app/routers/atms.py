@@ -29,7 +29,10 @@ async def list_atms(
     # TODO add in optional query parameter for filtering based on power level (Business Question #1)
     
     # Create our statement for the DB
-    statement = select(ATM).where(ATM.status != ATMStatus.OFFLINE)
+    statement = select(ATM).where(
+        ATM.status != ATMStatus.OFFLINE,
+        ATM.status != ATMStatus.MAINTENANCE
+    )
 
     # Check for max_cash_level query param
     if max_cash_level is not None:
