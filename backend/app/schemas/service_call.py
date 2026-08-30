@@ -31,3 +31,16 @@ class ServiceCallRead(BaseModel):
     technician_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+"""
+Response model to answer business #3:
+The service call completion/failure ratio broken down by ATM models
+"""
+#response model
+class ServiceCallRatioRead(BaseModel):
+    atm_model: str
+    completed_count: int
+    failed_count: int
+    completion_failure_ratio: float | None #incase failure count is 0
+
+    #prefer not using model_config b/c will check completion_failure_ratio

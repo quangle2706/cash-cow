@@ -7,10 +7,10 @@ Provide ServiceCall APIs including
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.service_call import DiscrepancyRead, ServiceCallRead, ServiceCallStatusUpdate
+from app.schemas.service_call import DiscrepancyRead, ServiceCallRead, ServiceCallStatusUpdate, ServiceCallRatioRead
 from app.dependencies import get_db, require_role
 
 from app.models import ServiceCall, ATM, Technician, User, UserRole
@@ -82,3 +82,37 @@ async def update_service_call_status(
     await db.commit()
     await db.refresh(service_call)
     return service_call
+
+#get service call completion/failure ratio by ATM models
+@router.get("/completion-failure-ratio", response_model=list[ServiceCallRatioRead])
+async def get_completion_failure_ratio(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
+) -> list[ServiceCallRatioRead]:
+    statement = (
+        select(
+            ATM.model.label("atm_model"),
+            func.count().filter(ServiceCall.status == ServiceCallStatus.COMPLETED)
+                .label("completed_count"),
+            func.count().filter(ServiceCall.status == ServiceCallStatus.FAILED)
+                .label("failed_count")
+        )
+        .join(ServiceCall, ServiceCall.atm_id == ATM.id)
+        .group_by(ATM.model)
+    )
+
+    result = await db.execute(statement)
+    rows = result.mappings().all()
+
+    #response list servicecall with ratio info
+    return [
+        ServiceCallRatioRead(
+            atm_model=row["atm_model"],
+            completed_count=row["completed_count"],
+            failed_count=row["failed_count"],
+            completion_failure_ratio=(
+                row["completion_count"] / row["failed_count"] if row["failed_count"] > 0 else None
+            )
+        ) for row in rows
+    ]
+
