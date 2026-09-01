@@ -19,7 +19,7 @@ const apiClient = axios.create({
 //automatically. Components do not need to remember to attach tokens, making this
 //the centralized place for the token logic.
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('roboPulseToken');
+    const token = localStorage.getItem('cashCowToken');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

@@ -5,6 +5,7 @@ import LoginForm from "./components/auth/LoginForm.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 
 import ATMDataGrid from "./components/atms/ATMDataGrid.jsx";
+import DiscrepancyDataGrid from "./components/service-calls/DiscrepancyDataGrid.jsx";
 
 //a main dashboard component that renders the application header and robot data grid to authenticated users
 function DashBoard(){
@@ -24,7 +25,7 @@ function DashBoard(){
           Co-Location Discrepancies
         </Typography>
         <Box sx={{ mb: 4 }}>
-          {/* <DiscrepancyDataGrid />  */}
+          <DiscrepancyDataGrid /> 
         </Box>
       </Container>
     </>
