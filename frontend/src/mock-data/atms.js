@@ -4,6 +4,8 @@
 //     ('ATM-20001', 'Diebold Nixdorf DN200', 'Maintenance', 65.00, 2),
 //     ('ATM-30001', 'Hyosung MX8800', 'Offline',     45.00, 2);
 
+// Will be ignored after successfully loading data from backend with apiClient
+
 import { modalClasses } from "@mui/material";
 
 export const mockATMs = [

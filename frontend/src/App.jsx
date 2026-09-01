@@ -4,6 +4,8 @@ import AppHeader from "./components/layout/AppHeader.jsx";
 import LoginForm from "./components/auth/LoginForm.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 
+import ATMDataGrid from "./components/atms/ATMDataGrid.jsx";
+
 //a main dashboard component that renders the application header and robot data grid to authenticated users
 function DashBoard(){
   //stores the current user object and logout function from the global AuthContext
@@ -16,7 +18,7 @@ function DashBoard(){
           CashCow Overview
         </Typography>
         <Box sx={{ mb: 4 }}>
-          {/* <RobotDataGrid /> */}
+          <ATMDataGrid />
         </Box>
         <Typography variant="h5" component="h2" gutterBottom>
           Co-Location Discrepancies
