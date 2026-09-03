@@ -7,12 +7,17 @@ import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import ATMDataGrid from "./components/atms/ATMDataGrid.jsx";
 import DiscrepancyDataGrid from "./components/service-calls/DiscrepancyDataGrid.jsx";
 
+//SideMenu
+import SideMenu from "./components/menu/SideMenu.jsx";
+
 //a main dashboard component that renders the application header and robot data grid to authenticated users
 function DashBoard(){
   //stores the current user object and logout function from the global AuthContext
   const {user, logout} = useAuth();
   return (
     <>
+      {/* SideMenu and AppNavBar will be here */}
+      <SideMenu />
       <AppHeader username={user?.sub} role={user?.role} onLogout={logout} />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Typography variant="h5" component="h2" gutterBottom>

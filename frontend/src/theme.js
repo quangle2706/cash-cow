@@ -20,7 +20,10 @@ const theme = createTheme({
     },
     shape: {
         borderRadius: 8,
-    }
+    },
+    typography: {
+        fontFamily: '"Inter", "Roboto", "Arial", sans-serif',
+    },
 });
 
 export default theme;
