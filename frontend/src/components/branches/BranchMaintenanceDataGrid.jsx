@@ -4,14 +4,14 @@ import { Alert, Box, Typography, TextField } from "@mui/material";
 import apiClient from '../../api/client';
 
 const columns = [
-    {field: 'branch_id', headerName: "Branch ID", width: 150},
-    {field: 'branch_name', headerName: "Branch Name", width: 220},
-    {field: 'total_atms', headerName: "Total ATMs", width: 160, type: 'number'},
-    {field: 'total_maintenance_atms', headerName: "Total Maintenance ATMs", width: 160, type: 'number'},
+    {field: 'branch_id', headerName: "Branch ID", width: 90},
+    {field: 'branch_name', headerName: "Branch Name", width: 180},
+    {field: 'total_atms', headerName: "Total ATMs", width: 120, type: 'number'},
+    {field: 'total_maintenance_atms', headerName: "Total Maintenance ATMs", width: 120, type: 'number'},
     {
         field: 'maintenance_ratio',
         headerName: "Maintenance Ratio",
-        width: 200,
+        width: 160,
         align: 'right',
         headerAlign: 'right',
         renderCell: ({ value }) => value == null ? 'N/A' : value,
@@ -55,8 +55,8 @@ function BranchMaintenanceDataGrid() {
     return (
         <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Maintenance Threshold
+                <Typography variant="subtitle2" sx={{ fontSize: '0.8rem' }}>
+                    Maintenance Threshold (%)
                 </Typography>
 
                 <TextField
@@ -74,11 +74,31 @@ function BranchMaintenanceDataGrid() {
                     sx={{
                         width: 140,
                         '& .MuiInputBase-root': { height: 40 },
+                        '& .MuiInputBase-input': { fontSize: '0.8rem' },
+                        '& .MuiInputLabel-root': { fontSize: '0.9rem' },
+                        '& input[type=number]': { colorScheme: 'light' },
                     }}
                 />
             </Box>
             <Box sx={{ height: 400, width: '100%' }}>
-                <DataGrid loading={loading} rows={data} columns={columns} getRowId={(row) => row.branch_id} />
+                <DataGrid loading={loading} 
+                    rows={data} columns={columns} 
+                    getRowId={(row) => row.branch_id} 
+                    sx={{
+                        '& .MuiDataGrid-cell': {
+                            fontSize: '0.8rem',
+                            alignItems: 'center',
+                        },
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: '#f4f6f8',
+                            borderBottom: '2px solid #d7dce2',
+                        },
+                    }}
+                />
             </Box>
         </>
     )

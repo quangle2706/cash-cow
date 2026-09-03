@@ -8,7 +8,15 @@ function CashLevelCell({ value }) {
     const color = cashLevel < 30 ? '#ff2d2d' : cashLevel < 60 ? '#ed6c02' : '#12a019';
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                width: '100%',
+                height: '100%',
+            }}
+        >
             <LinearProgress
                 variant="determinate"
                 value={cashLevel}
@@ -24,7 +32,7 @@ function CashLevelCell({ value }) {
                     },
                 }}
             />
-            <Typography variant="body2" sx={{ minWidth: 38, textAlign: 'right' }}>
+            <Typography variant="body2" sx={{ minWidth: 38, textAlign: 'right', fontSize: '0.8rem', }}>
                 {cashLevel}%
             </Typography>
         </Box>
@@ -83,8 +91,8 @@ function ATMDataGrid() {
     return (
         <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Cash Level Threshold
+                <Typography variant="subtitle2" sx={{ fontSize: '0.8rem' }}>
+                    Cash Level Threshold (%)
                 </Typography>
 
                 <TextField
@@ -102,11 +110,35 @@ function ATMDataGrid() {
                     sx={{
                         width: 140,
                         '& .MuiInputBase-root': { height: 40 },
+                        '& .MuiInputBase-input': { fontSize: '0.8rem' },
+                        '& .MuiInputLabel-root': { fontSize: '0.9rem' },
+                        '& input[type=number]': { colorScheme: 'light' },
                     }}
                 />
             </Box>
-            <Box sx={{height: 400, width: '100%'}}>
-                <DataGrid loading={loading} rows={atms} columns={columns} getRowId={(row) => row.id} />
+            <Box sx={{ height: 400, width: '100%' }}>
+                <DataGrid
+                    loading={loading}
+                    rows={atms}
+                    columns={columns}
+                    getRowId={(row) => row.id}
+                    rowHeight={44}
+                    columnHeaderHeight={45}
+                    sx={{
+                        '& .MuiDataGrid-cell': {
+                            fontSize: '0.8rem',
+                            alignItems: 'center',
+                        },
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: '#f4f6f8',
+                            borderBottom: '2px solid #d7dce2',
+                        },
+                    }}
+                />
             </Box>
         </>
     )

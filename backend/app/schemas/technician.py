@@ -11,3 +11,12 @@ from pydantic import BaseModel, ConfigDict
 class ActiveTechnicianCountRead(BaseModel):
     supervisor_id: int | None
     active_technician_count: int #number of technician have active service assigned to them to supervisor_id provided
+
+class ActiveTechnicianRead(BaseModel):
+    supervisor_id: int | None
+    technician_id: int
+    technician_name: str
+    branch_name: str
+    active_calls: int
+    pending_calls: int
+    in_progress_calls: int

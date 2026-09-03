@@ -4,14 +4,15 @@
 import { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Alert, Box, CircularProgress, FormControl,
-    InputLabel, MenuItem, Select
+    InputLabel, MenuItem, Select,
+    Typography
  } from "@mui/material";
 import apiClient from "../../api/client.js";
 
 //map data to the DataGrid from the backend
 const columns = [
-    {field: 'service_call_id', headerName: 'Service Call ID', width: 110},
-    {field: 'title', headerName: 'Title', width: 220},
+    {field: 'service_call_id', headerName: 'Service Call ID', width: 140},
+    {field: 'title', headerName: 'Title', width: 240},
     {field: 'atm_branch_id', headerName: 'ATM Branch', width: 140, type: 'number'},
     {field: 'technician_branch_id', headerName: 'Technician Branch', width: 150, type: 'number'}
 ];
@@ -53,21 +54,43 @@ function DiscrepancyDataGrid() {
 
     return (
         <Box>
-            <FormControl size="small" sx={{ mb: 2, minWidth: 180 }}>
-                <InputLabel id="priority-filter-label">Priority</InputLabel>
-                <Select
-                    labelId="priority-filter-label"
-                    label="priority"
-                    value={priority}
-                    onChange={(event) => setPriority(event.target.value)}
-                >
-                    {PRIORITY_OPTIONS.map((option) => 
-                        <MenuItem key={option || 'all'} value={option}>
-                            {option === '' ? 'All' : option}
-                        </MenuItem>
-                    )}
-                </Select>
-            </FormControl>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'left', gap: 1.5, mb: 2 }} >
+                <Typography sx={{ fontSize: '0.8rem' }}>Service Calls with Priority Status</Typography>
+                <FormControl size="small" sx={{ minWidth: 140, height: 40 }}>
+                    <InputLabel
+                        id="priority-filter-label"
+                        sx={{
+                            fontSize: '0.8rem',
+                            lineHeight: 1.2,
+                            top: '50%',
+                            transform: 'translate(14px, -50%) scale(1)',
+                            '&.MuiInputLabel-shrink': {
+                                top: 0,
+                                transform: 'translate(14px, -9px) scale(0.75)',
+                            },
+                        }}
+                    >
+                        Priority
+                    </InputLabel>
+                    <Select
+                        labelId="priority-filter-label"
+                        label="priority"
+                        value={priority}
+                        onChange={(event) => setPriority(event.target.value)}
+                        sx={{
+                            height: 40,
+                            '& .MuiSelect-select': { fontSize: '0.8rem' },
+                            textAlign: 'left'
+                        }}
+                    >
+                        {PRIORITY_OPTIONS.map((option) => 
+                            <MenuItem key={option || 'all'} value={option} sx={{ fontSize: '0.8rem' }}>
+                                {option === '' ? 'All' : option}
+                            </MenuItem>
+                        )}
+                    </Select>
+                </FormControl>
+            </Box>
             {loading && <CircularProgress />}
             {error && <Alert severity="error">{error}</Alert>}
             {!loading && !error && (
@@ -75,7 +98,22 @@ function DiscrepancyDataGrid() {
                     <DataGrid
                         rows={discrepancies}
                         columns={columns}
-                        getRowId={(row) => row.service_call_id} />
+                        getRowId={(row) => row.service_call_id} 
+                        sx={{
+                            '& .MuiDataGrid-cell': {
+                                fontSize: '0.8rem',
+                                alignItems: 'center',
+                            },
+                            '& .MuiDataGrid-columnHeaderTitle': {
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+                            },
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: '#f4f6f8',
+                                borderBottom: '2px solid #d7dce2',
+                            },
+                        }}
+                    />
                 </Box>
             )}
         </Box>

@@ -7,6 +7,7 @@ import ATMDataGrid from "../components/atms/ATMDataGrid.jsx";
 import DiscrepancyDataGrid from "../components/service-calls/DiscrepancyDataGrid.jsx";
 import ATMServiceCallRatioDataGrid from "../components/atms/ATMServiceCallRatioDataGrid.jsx";
 import BranchMaintenanceDataGrid from "../components/branches/BranchMaintenanceDataGrid.jsx";
+import ActiveTechnicianDataGrid from "../components/technicians/ActiveTechnicianDataGrid.jsx";
 
 //SideMenu
 import SideMenu from "../components/menu/SideMenu.jsx";
@@ -22,29 +23,35 @@ export default function DashBoard(){
       <Box sx={{ ml: { xs: 0, md: '240px', lg: '200px' } }}>
         <AppHeader username={user?.sub} role={user?.role} onLogout={logout} />
         <Container maxWidth="lg" sx={{ mt: 4 }}>
-          <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
-            CashCow Overview
+          <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            1. ATMs with Cash Level Above Threshold %
           </Typography>
           <Box sx={{ mb: 4 }}>
             <ATMDataGrid />
           </Box>
-          <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
-            Co-Location Discrepancies
+          <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            2. Co-Location Discrepancies
           </Typography>
           <Box sx={{ mb: 4 }}>
             <DiscrepancyDataGrid /> 
           </Box>
-          <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
-            Completion/Failure Ratio by ATM Model
+          <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            3. Completion/Failure Ratio by ATM Model
           </Typography>
           <Box sx={{ mb: 4 }}>
             <ATMServiceCallRatioDataGrid />
           </Box>
-          <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
-            Branch Maintenance Flags
+          <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            4. Branch Maintenance Flags
           </Typography>
           <Box sx={{ mb: 4 }}>
             <BranchMaintenanceDataGrid />
+          </Box>
+          <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
+            5. Reporting Lines - Active Technicians Under A Specific Supervisor
+          </Typography>
+          <Box sx={{ mb: 4 }}>
+            <ActiveTechnicianDataGrid />
           </Box>
         </Container>
       </Box>
