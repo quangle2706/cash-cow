@@ -13,27 +13,57 @@ import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import LogoutIcon from '@mui/icons-material/Logout'
 
-const mainListItems = [
-  { text: 'Dashboard', icon: <HomeOutlinedIcon /> },
-  { text: 'Branches', icon: <AccountTreeOutlinedIcon /> },
-  { text: 'ATMs', icon: <AtmIcon /> },
-  { text: 'Service Calls', icon: <CallIcon /> },
-  { text: 'Technicians', icon: <PeopleRoundedIcon /> },
-  { text: 'Analytics', icon: <AnalyticsOutlinedIcon /> },
-];
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from "../../context/AuthContext.jsx";
 
-const secondaryListItems = [
-  { text: 'Settings', icon: <SettingsRoundedIcon /> },
-  { text: 'Logout', icon: <LogoutIcon /> },
+const mainListItems = [
+  { text: 'Dashboard', icon: <HomeOutlinedIcon />, route: '/' },
+  { text: 'Branches', icon: <AccountTreeOutlinedIcon />, route: '/branches' },
+  { text: 'ATMs', icon: <AtmIcon />, route: '/atms' },
+  { text: 'Service Calls', icon: <CallIcon />, route: '/service-calls' },
+  { text: 'Technicians', icon: <PeopleRoundedIcon />, route: '/technicians' },
+  { text: 'Analytics', icon: <AnalyticsOutlinedIcon />, route: '/analytics' },
 ];
 
 export default function MenuContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {user, logout} = useAuth();
+
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block', mb: 2, }}>
-            <ListItemButton selected={index === 0}>
+            <ListItemButton selected={location.pathname === item.route} onClick={() => navigate(item.route)}
+              sx={{
+                  borderRadius: 2,
+                  mb: 0.5,
+                  color: 'rgba(255,255,255,0.7)',
+
+                  '& .MuiListItemIcon-root': {
+                    color: 'rgba(255,255,255,0.7)',
+                  },
+
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                  },
+
+                  '&.Mui-selected': {
+                    backgroundColor: 'rgba(255,255,255,0.14)',
+                    color: '#FFFFFF',
+
+                    '& .MuiListItemIcon-root': {
+                      color: '#FFFFFF',
+                    },
+
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.18)',
+                    },
+                  },
+                }}
+              >
               <ListItemIcon sx={{ color: '#CBD5E1' }} >{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -41,14 +71,41 @@ export default function MenuContent() {
         ))}
       </List>
       <List dense>
-        {secondaryListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block', mb: 2, }}>
-            <ListItemButton>
-              <ListItemIcon sx={{ color: '#CBD5E1' }} >{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+        {/* {secondaryListItems.map((item, index) => ( */}
+          <ListItem key='0' disablePadding sx={{ display: 'block', mb: 2, }}>
+            <ListItemButton onClick={logout} 
+              sx={{
+                borderRadius: 2,
+                mb: 0.5,
+                color: 'rgba(255,255,255,0.7)',
+
+                '& .MuiListItemIcon-root': {
+                  color: 'rgba(255,255,255,0.7)',
+                },
+
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                },
+
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(255,255,255,0.14)',
+                  color: '#FFFFFF',
+
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF',
+                  },
+
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.18)',
+                  },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: '#CBD5E1' }} ><LogoutIcon /></ListItemIcon>
+              <ListItemText primary='Logout' />
             </ListItemButton>
           </ListItem>
-        ))}
+        {/* // ))} */}
       </List>
     </Stack>
   );

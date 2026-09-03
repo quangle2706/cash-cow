@@ -6,7 +6,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import MenuContent from './MenuContent';
-import appIcon from '../../assets/app-icon.png';
+import appHeading from '../../assets/app-heading.png';
 
 const drawerWidth = 240;
 
@@ -46,17 +46,17 @@ export default function SideMenu() {
       >
         {/* Logo Icon + Heading */}
         <Box
-            component="img"
-            src={appIcon}
-            alt="AppIcon"
-            sx={{
-                width: 60,
-                height: 60,
-                objectFit: 'contain',
-            }}
+          component="img"
+          src={appHeading}
+          alt="AppHeading"
+          sx={{
+              // width: 60,
+              height: 60,
+              objectFit: 'contain',
+          }}
         />
 
-        <Box sx={{ marginLeft: 2 }}>
+        {/* <Box sx={{ marginLeft: 2 }}>
             <Typography
                 sx={{
                     fontWeight: 700,
@@ -75,7 +75,7 @@ export default function SideMenu() {
             >
             ATM Operations
             </Typography>
-        </Box>
+        </Box> */}
       </Box>
       <Divider />
       <Box

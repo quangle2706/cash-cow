@@ -1,5 +1,8 @@
-import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material"
-import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
+import { AppBar, Toolbar, IconButton, Typography, Box, Button } from "@mui/material"
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
+import SideMenuMobile from "../menu/SideMenuMobile";
+import { useState } from "react";
 
 {/* Every React component must return a single (html) element. In this case, 
     we are returning an AppBar component from MUI, which acts as a top-level
@@ -12,21 +15,34 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 
 //Day 7 - added username, role, onLogout to function params
 function AppHeader({username, role, onLogout}) {
+
+    const [open, setOpen] = useState(false);
+    const toggleDrawer = (newOpen) => () => {
+        setOpen(newOpen);
+    };
+
     return (
         <AppBar position="static">
             <Toolbar>
-                <PrecisionManufacturingIcon sx={{ mr: 2}} />
-                <Typography variant="h6" component="h1">
+                <IconButton
+                    color="inherit"
+                    aria-label="Open navigation menu"
+                    onClick={toggleDrawer(true)}
+                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                >
+                    <MenuRoundedIcon />
+                </IconButton>
+                {/* <PrecisionManufacturingIcon sx={{ mr: 2}} /> */}
+                {/* <Typography variant="h6" component="h1">
                     CASHCOW - Command Center
-                </Typography>
-                {/** Day 7 Code HERE */}
+                </Typography> */}
                 {username && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="body2">{username}({role})</Typography>
-                        <Button color="inherit" onClick={onLogout}>Log Out</Button>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%',  gap: 2 }}>
+                        <Typography variant="body2">{username.toUpperCase()} ({role})</Typography>
+                        {/* <Button color="inherit" onClick={onLogout}>Log Out</Button> */}
                     </Box>
                 )}
-                {/**END DAY 7 */}
+                <SideMenuMobile open={open} toggleDrawer={toggleDrawer} />
             </Toolbar>
         </AppBar>
     )
