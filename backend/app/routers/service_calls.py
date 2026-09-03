@@ -10,13 +10,54 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.service_call import DiscrepancyRead, ServiceCallRead, ServiceCallStatusUpdate, ServiceCallRatioRead
+from app.schemas.service_call import DiscrepancyRead, ServiceCallRead, ServiceCallStatusUpdate, ServiceCallRatioRead, ServiceCallCreate
 from app.dependencies import get_db, require_role
 
 from app.models import ServiceCall, ATM, Technician, User, UserRole
 from app.models.enums import ServiceCallStatus, ServiceCallPriority
 
 router = APIRouter(prefix="/service-calls", tags=["service-calls"])
+
+#list all service calls
+@router.get("/", response_model=list[ServiceCallRead])
+async def list_service_calls(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
+) -> list[ServiceCallRead]:
+    statement = select(ServiceCall)
+    result = await db.execute(statement)
+    service_calls = result.scalars().all()
+    return service_calls
+
+#create new service call
+@router.post("/", response_model=ServiceCallRead, status_code=status.HTTP_201_CREATED)
+async def create_service_call(
+    payload: ServiceCallCreate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN))
+) -> ServiceCallRead:
+    service_call = ServiceCall(**payload.model_dump())
+
+    #check if the ATM exists
+    atm = await db.get(ATM, service_call.atm_id)
+    if atm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ATM '{service_call.atm_id}' not found"
+        )
+
+    #check if the technician exists
+    technician = await db.get(Technician, service_call.technician_id)
+    if technician is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Technician '{service_call.technician_id}' not found"
+        )
+    
+    db.add(service_call)
+    await db.commit()
+    await db.refresh(service_call)
+    return service_call
 
 @router.get("/discrepancies", response_model=list[DiscrepancyRead])
 async def list_colocation_discrepancies(

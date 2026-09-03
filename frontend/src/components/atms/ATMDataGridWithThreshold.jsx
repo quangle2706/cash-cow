@@ -51,27 +51,15 @@ const columns = [
     {field: 'branch_id', headerName: "Branch ID", width: 90, type: 'number'}
 ];
 
-const STATUS_OPTIONS = ['Operational', 'Low-Cash', 'Maintenance', 'Offline'];
-
 //local state variables for tracking table rows, loading status, and network errors
 //to track the lifecycle of the async API request so the UI can render appropriately
 // Update: onSuccess: a function passed down from Dashboard, called with a message string
 // whenever this component successfully creates an ATMs
-function ATMDataGrid({ onSuccess }) {
+function ATMDataGridWithThreshold() {
     const [atms, setATMs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [threshold, setThreshold] = useState(0);
-
-    //add form and dialog
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [formValues, setFormValues] = useState({
-        serial_number: '',
-        model: '',
-        cash_level: '',
-        branch_id: '',
-        status: 'Low-Cash',
-    });
+    const [threshold, setThreshold] = useState(20);
 
     //pulling out of the useEffect hook so that it can be called again after a successful create, not
     //just once on mount
@@ -104,37 +92,11 @@ function ATMDataGrid({ onSuccess }) {
         }, [threshold]);
 
         // fetchATMs();
-        const handleFieldChange = (field) => (event) => {
-            setFormValues((prev) => ({ ...prev, [field]: event.target.value }))
-        }
 
     //     return () => {
     //         isMounted = false;
     //     };
     // }, [threshold]);
-
-    //handles the actual creation of a new robot record in the db
-    const handleCreate = async() => {
-        try {
-            await apiClient.post('/atms', {
-                ...formValues,
-                cash_level: Number(formValues.cash_level),
-                branch_id: Number(formValues.branch_id),
-            });
-            setDialogOpen(false);
-            setFormValues({
-                serial_number: '',
-                model: '',
-                cash_level: '',
-                branch_id: '',
-                status: 'Low-Cash',
-            });
-            await fetchATMs(); //see the table data refreshed with the new robot
-            onSuccess?.(`ATM ${formValues.serial_number} created.`);
-        } catch {
-            //a real app would surface this inline in the dialog
-        }
-    }
 
     //shows a spinning progress indicator if loading data
     if (loading) return <CircularProgress />
@@ -195,31 +157,10 @@ function ATMDataGrid({ onSuccess }) {
                     }}
                 />
             </Box>
-            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={() => setDialogOpen(true)}>Add ATM</Button>
-            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle sx={{ color: 'black', textAlign: 'center' }} >Add New ATM</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2} sx={{ mt: 1, minWidth: 300 }}>
-                        <TextField label="Serial Number" value={formValues.serial_number} onChange={handleFieldChange('serial_number')} />
-                        <TextField label="Model" value={formValues.model} onChange={handleFieldChange('model')} />
-                        <TextField label="Cash Level" type="number" value={formValues.cash_level} onChange={handleFieldChange('cash_level')} />
-                        <TextField label="Branch ID" type="number" value={formValues.branch_id} onChange={handleFieldChange('branch_id')} />
-                        <TextField select label="Status" value={formValues.status} onChange={handleFieldChange('status')}>
-                            {STATUS_OPTIONS.map((option) => (
-                                <MenuItem key={option} value={option}>{option}</MenuItem>
-                            ))}
-                        </TextField>
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-                    <Button variant="contained" onClick={handleCreate}>Create</Button>
-                </DialogActions>
-            </Dialog>
         </>
     )
 }
 
-export default ATMDataGrid;
+export default ATMDataGridWithThreshold;
 
 // Using DataGrid -> we're not gonna use Card/List temporarily

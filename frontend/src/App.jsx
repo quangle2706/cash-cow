@@ -7,7 +7,7 @@ import DashBoard from './pages/Dashboard.jsx';
 import Atms from './pages/Atms.jsx';
 import Branches from './pages/Branches.jsx';
 import ServiceCalls from './pages/ServiceCalls.jsx';
-import Technicians from './pages/Technicians.jsx';
+import Users from './pages/Users.jsx';
 
 function AppContent() {
   const {isAuthenticated} = useAuth();
@@ -16,7 +16,7 @@ function AppContent() {
       <Route path='/branches' element={<Branches />} />
       <Route path='/atms' element={<Atms />} />
       <Route path='/service-calls' element={<ServiceCalls />} />
-      <Route path='/technicians' element={<Technicians />} />
+      <Route path='/users' element={<Users />} />
     </Routes></> : <LoginForm />;
 }
 

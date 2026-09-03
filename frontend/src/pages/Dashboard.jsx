@@ -3,7 +3,7 @@ import AppHeader from "../components/layout/AppHeader.jsx";
 
 import { useAuth } from "../context/AuthContext.jsx";
 
-import ATMDataGrid from "../components/atms/ATMDataGrid.jsx";
+import ATMDataGridWithThreshold from "../components/atms/ATMDataGridWithThreshold.jsx";
 import DiscrepancyDataGrid from "../components/service-calls/DiscrepancyDataGrid.jsx";
 import ATMServiceCallRatioDataGrid from "../components/atms/ATMServiceCallRatioDataGrid.jsx";
 import BranchMaintenanceDataGrid from "../components/branches/BranchMaintenanceDataGrid.jsx";
@@ -30,7 +30,7 @@ export default function DashBoard(){
             1. ATMs with Cash Level Above Threshold %
           </Typography>
           <Box sx={{ mb: 4 }}>
-            <ATMDataGrid onSuccess={setNotification} />
+            <ATMDataGridWithThreshold />
           </Box>
           <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
             2. Co-Location Discrepancies

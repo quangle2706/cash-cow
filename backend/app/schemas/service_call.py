@@ -32,6 +32,13 @@ class ServiceCallRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ServiceCallCreate(BaseModel):
+    title: str
+    priority: ServiceCallPriority
+    status: ServiceCallStatus
+    atm_id: int
+    technician_id: int
+
 """
 Response model to answer business #3:
 The service call completion/failure ratio broken down by ATM models

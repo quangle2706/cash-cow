@@ -21,7 +21,7 @@ const mainListItems = [
   { text: 'Branches', icon: <AccountTreeOutlinedIcon />, route: '/branches' },
   { text: 'ATMs', icon: <AtmIcon />, route: '/atms' },
   { text: 'Service Calls', icon: <CallIcon />, route: '/service-calls' },
-  { text: 'Technicians', icon: <PeopleRoundedIcon />, route: '/technicians' },
+  { text: 'Users', icon: <PeopleRoundedIcon />, route: '/users' },
 ];
 
 export default function MenuContent() {

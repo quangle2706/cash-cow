@@ -73,3 +73,14 @@ async def register_user(
     #refresh the user object so that we get the id the db generated
     await db.refresh(user)
     return user
+
+#list all users
+@router.get("/users", response_model=list[UserRead])
+async def list_users(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))
+) -> list[UserRead]:
+    statement = select(User)
+    result = await db.execute(statement)
+    users = result.scalars().all()
+    return users
