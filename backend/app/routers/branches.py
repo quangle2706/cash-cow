@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db, get_current_user, require_role
 from app.models import Branch, ATM, ATMStatus, User, UserRole
-from app.schemas.branch import BranchMaintenanceRead
+from app.schemas.branch import BranchMaintenanceRead, BranchRead, BranchCreate
 
 router = APIRouter(prefix="/branches", tags=["branches"])
 
@@ -56,3 +56,29 @@ async def get_branches_with_maintenance_ratio(
             )
         ) for row in rows
     ]
+
+#List all branches
+@router.get("", response_model=list[BranchRead])
+async def list_branches(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
+) -> list[BranchRead]:
+    statement = select(Branch).order_by(Branch.id)
+    result = await db.execute(statement)
+    branches = result.scalars().all()
+
+    return branches
+
+#Create a new branch
+@router.post("", response_model=BranchRead, status_code=status.HTTP_201_CREATED)
+async def create_branch(
+    payload: BranchCreate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))
+) -> BranchRead:
+    branch = Branch(**payload.model_dump())
+    db.add(branch)
+    await db.commit()
+    await db.refresh(branch)
+
+    return branch

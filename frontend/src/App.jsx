@@ -17,7 +17,6 @@ function AppContent() {
       <Route path='/atms' element={<Atms />} />
       <Route path='/service-calls' element={<ServiceCalls />} />
       <Route path='/technicians' element={<Technicians />} />
-      <Route path='/analytics' element={<Typography variant="h5">Analytics</Typography>} />
     </Routes></> : <LoginForm />;
 }
 

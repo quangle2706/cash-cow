@@ -44,8 +44,8 @@ async def list_atms(
 
     return list(result.scalars().all())
 
-# Get a specific robot by its id
-# GET /robots/{robot_id} -> robot_id is known as a PATH PARAMETER
+# Get a specific atm by its id
+# GET /atms/{atm_id} -> atm_id is known as a PATH PARAMETER
 @router.get("/{atm_id}", response_model=ATMRead)
 async def get_atm(atm_id: int, db: AsyncSession=Depends(get_db)):
     atm = await db.get(ATM, atm_id)
@@ -59,14 +59,14 @@ async def get_atm(atm_id: int, db: AsyncSession=Depends(get_db)):
 
     return atm
 
-# Let's create a Robot
+# Let's create an ATM
 # POST requests are used for creating new resources or altering state
 @router.post("", response_model=ATMRead, status_code=status.HTTP_201_CREATED)
-async def create_robot(payload: ATMCreate, db: AsyncSession = Depends(get_db)):
+async def create_atm(payload: ATMCreate, db: AsyncSession = Depends(get_db)):
     # We receive the payload as a RobotCreate object
-    # We need it as a Robot object to save with the ORM
+    # We need it as a ATM object to save with the ORM
     atm = ATM(**payload.model_dump())
-    # Dumps the model into the Robot constructor
+    # Dumps the model into the ATM constructor
     db.add(atm)
     await db.commit()
     await db.refresh(atm)

@@ -10,7 +10,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://postgres:123456@127.0.0.1:5432/cashcow_dev"
+    database_url: str = "postgresql+asyncpg://postgres:123456@localhost:5432/cashcow_dev"
     #No default value here because a wrong secret key value can cause the app to start up
     #seemingly successfully, but with a silent failure because it will pass an incorrect key
     #value for our JWT (Json Web Token)

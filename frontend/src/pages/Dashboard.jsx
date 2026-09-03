@@ -30,7 +30,7 @@ export default function DashBoard(){
             1. ATMs with Cash Level Above Threshold %
           </Typography>
           <Box sx={{ mb: 4 }}>
-            <ATMDataGrid />
+            <ATMDataGrid onSuccess={setNotification} />
           </Box>
           <Typography gutterBottom sx={{  textAlign:'left', color: 'black',  mb: '1rem', fontSize: '0.9rem', fontWeight: '600' }}>
             2. Co-Location Discrepancies
