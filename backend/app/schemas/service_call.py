@@ -39,6 +39,7 @@ The service call completion/failure ratio broken down by ATM models
 #response model
 class ServiceCallRatioRead(BaseModel):
     atm_model: str
+    total_count: int
     completed_count: int
     failed_count: int
     completion_failure_ratio: float | None #incase failure count is 0

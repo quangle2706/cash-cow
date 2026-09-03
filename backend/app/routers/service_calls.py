@@ -92,6 +92,7 @@ async def get_completion_failure_ratio(
     statement = (
         select(
             ATM.model.label("atm_model"),
+            func.count().label("total_count"),
             func.count().filter(ServiceCall.status == ServiceCallStatus.COMPLETED)
                 .label("completed_count"),
             func.count().filter(ServiceCall.status == ServiceCallStatus.FAILED)
@@ -108,10 +109,11 @@ async def get_completion_failure_ratio(
     return [
         ServiceCallRatioRead(
             atm_model=row["atm_model"],
+            total_count=row["total_count"],
             completed_count=row["completed_count"],
             failed_count=row["failed_count"],
             completion_failure_ratio=(
-                row["completion_count"] / row["failed_count"] if row["failed_count"] > 0 else None
+                row["completed_count"] / row["failed_count"] if row["failed_count"] > 0 else None
             )
         ) for row in rows
     ]

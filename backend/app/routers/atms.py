@@ -35,44 +35,14 @@ async def list_atms(
     #     ATM.status != ATMStatus.MAINTENANCE
     # )
 
-    # Check for max_cash_level query param
-    # if max_cash_level is not None:
-    #     statement = statement.where(ATM.cash_level < max_cash_level)
-    statement = statement.order_by(ATM.id)
-
-    result = await db.execute(statement)
-
-    return list(result.scalars().all())
-
-@router.get("", response_model=list[ATMRead])
-async def list_active_atms(
-    max_cash_level: Decimal | None = Query(
-        # This is a query param, used for filtering all of our results
-        default = None, # This makes it optional
-        ge=0, # greater than or equal ...
-        le=100,
-        description="Only return atms strictly below this cash level percentage"
-    ),
-    db: AsyncSession=Depends(get_db)):
-    # We need to be able to interact with the DB, so we need our session object to execute those statement
-    # We are DEPENDENT on the session object
-    # TODO add in optional query parameter for filtering based on power level (Business Question #1)
-    
-    # Create our statement for the DB
-    statement = select(ATM).where(
-        ATM.status != ATMStatus.OFFLINE,
-        ATM.status != ATMStatus.MAINTENANCE
-    )
-
-    # Check for max_cash_level query param
+    # Filter results when a cash threshold is provided.
     if max_cash_level is not None:
-        statement = statement.where(ATM.cash_level < max_cash_level)
+        statement = statement.where(ATM.cash_level >= max_cash_level)
     statement = statement.order_by(ATM.id)
 
     result = await db.execute(statement)
 
     return list(result.scalars().all())
-
 
 # Get a specific robot by its id
 # GET /robots/{robot_id} -> robot_id is known as a PATH PARAMETER

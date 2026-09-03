@@ -4,15 +4,19 @@ import { Typography } from '@mui/material';
 import LoginForm from "./components/auth/LoginForm.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import DashBoard from './pages/Dashboard.jsx';
+import Atms from './pages/Atms.jsx';
+import Branches from './pages/Branches.jsx';
+import ServiceCalls from './pages/ServiceCalls.jsx';
+import Technicians from './pages/Technicians.jsx';
 
 function AppContent() {
   const {isAuthenticated} = useAuth();
   return isAuthenticated ? <><Routes>
       <Route path='/' element={<DashBoard />} />
-      <Route path='/branches' element={<Typography variant="h5">Branches</Typography>} />
-      <Route path='/atms' element={<Typography variant="h5">ATMs</Typography>} />
-      <Route path='/service-calls' element={<Typography variant="h5">Service Calls</Typography>} />
-      <Route path='/technicians' element={<Typography variant="h5">Technicians</Typography>} />
+      <Route path='/branches' element={<Branches />} />
+      <Route path='/atms' element={<Atms />} />
+      <Route path='/service-calls' element={<ServiceCalls />} />
+      <Route path='/technicians' element={<Technicians />} />
       <Route path='/analytics' element={<Typography variant="h5">Analytics</Typography>} />
     </Routes></> : <LoginForm />;
 }
