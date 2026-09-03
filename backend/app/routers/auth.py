@@ -4,7 +4,7 @@ Authentication endpoints
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db, require_role
@@ -25,7 +25,7 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ) -> Token:
     #our db call to select our user
-    result = await db.execute(select(User).where(User.username == form_data.username))
+    result = await db.execute(select(User).where(User.username == form_data.username.lower()))
     user = result.scalar_one_or_none()
 
     #check to verify if the password is correct
@@ -50,7 +50,8 @@ async def register_user(
     _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
 ) -> User:
     #checking if the username already exists in the db
-    existing = await db.execute(select(User).where(User.username == payload.username))
+    ##func.lower()
+    existing = await db.execute(select(User).where(func.lower(User.username) == payload.username.lower()))
     if existing.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

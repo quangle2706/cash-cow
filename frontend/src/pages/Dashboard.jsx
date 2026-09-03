@@ -1,4 +1,4 @@
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Typography, Box, Snackbar, Alert } from "@mui/material";
 import AppHeader from "../components/layout/AppHeader.jsx";
 
 import { useAuth } from "../context/AuthContext.jsx";
@@ -11,11 +11,14 @@ import ActiveTechnicianDataGrid from "../components/technicians/ActiveTechnician
 
 //SideMenu
 import SideMenu from "../components/menu/SideMenu.jsx";
+import { useState } from "react";
 
 //a main dashboard component that renders the application header and robot data grid to authenticated users
 export default function DashBoard(){
   //stores the current user object and logout function from the global AuthContext
   const {user, logout} = useAuth();
+  const [notification, setNotification] = useState(null);
+
   return (
     <>
       {/* SideMenu and AppNavBar will be here */}
@@ -54,6 +57,13 @@ export default function DashBoard(){
             <ActiveTechnicianDataGrid />
           </Box>
         </Container>
+        <Snackbar
+          open={Boolean(notification)}
+          autoHideDuration={4000}
+          onClose={() => setNotification(null)}
+        >
+          <Alert severity="success" onClose={() => setNotification(null)} >{notification}</Alert>
+        </Snackbar>
       </Box>
     </>
   );

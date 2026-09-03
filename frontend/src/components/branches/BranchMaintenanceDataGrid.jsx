@@ -7,7 +7,7 @@ const columns = [
     {field: 'branch_id', headerName: "Branch ID", width: 90},
     {field: 'branch_name', headerName: "Branch Name", width: 180},
     {field: 'total_atms', headerName: "Total ATMs", width: 120, type: 'number'},
-    {field: 'total_maintenance_atms', headerName: "Total Maintenance ATMs", width: 120, type: 'number'},
+    {field: 'total_maintenance_atms', headerName: "Total Maintenance ATMs", width: 220, type: 'number'},
     {
         field: 'maintenance_ratio',
         headerName: "Maintenance Ratio",
