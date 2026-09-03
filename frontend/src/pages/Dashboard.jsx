@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import ATMDataGrid from "../components/atms/ATMDataGrid.jsx";
 import DiscrepancyDataGrid from "../components/service-calls/DiscrepancyDataGrid.jsx";
 import ATMServiceCallRatioDataGrid from "../components/atms/ATMServiceCallRatioDataGrid.jsx";
+import BranchMaintenanceDataGrid from "../components/branches/BranchMaintenanceDataGrid.jsx";
 
 //SideMenu
 import SideMenu from "../components/menu/SideMenu.jsx";
@@ -38,6 +39,12 @@ export default function DashBoard(){
           </Typography>
           <Box sx={{ mb: 4 }}>
             <ATMServiceCallRatioDataGrid />
+          </Box>
+          <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
+            Branch Maintenance Flags
+          </Typography>
+          <Box sx={{ mb: 4 }}>
+            <BranchMaintenanceDataGrid />
           </Box>
         </Container>
       </Box>
