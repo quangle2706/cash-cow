@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import atms, service_calls, auth, branches, technicians
+from app.routers import atms, service_calls, auth, branches, technicians, diagnostic_reports
 from app.config import settings
 
 FRONTEND_ORIGIN = settings.frontend_origin
@@ -53,6 +53,9 @@ app.include_router(branches.router)
 
 # Technician APIs
 app.include_router(technicians.router)
+
+# Diagnostic Report APIs
+app.include_router(diagnostic_reports.router)
 
 # Sample health endpoint to validate the application is running correctly
 @app.get("/health", tags=["health"])

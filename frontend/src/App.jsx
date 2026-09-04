@@ -7,6 +7,7 @@ import DashBoard from './pages/Dashboard.jsx';
 import Atms from './pages/Atms.jsx';
 import Branches from './pages/Branches.jsx';
 import ServiceCalls from './pages/ServiceCalls.jsx';
+import DiagnosticReports from './pages/DiagnosticReports.jsx';
 import Users from './pages/Users.jsx';
 
 function AppContent() {
@@ -16,6 +17,7 @@ function AppContent() {
       <Route path='/branches' element={<Branches />} />
       <Route path='/atms' element={<Atms />} />
       <Route path='/service-calls' element={<ServiceCalls />} />
+      <Route path='/diagnostic-reports' element={<DiagnosticReports />} />
       <Route path='/users' element={<Users />} />
     </Routes></> : <LoginForm />;
 }

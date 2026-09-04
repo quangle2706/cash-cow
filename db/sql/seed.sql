@@ -77,13 +77,13 @@ VALUES
 -- 5. DIAGNOSTIC REPORTS - 4
 -- ============================================================
 
-INSERT INTO diagnostic_reports
-    (service_call_id, file_url, notes)
-VALUES
-    (1, 's3://cashcow-diagnostics/service-call-1.pdf', 'Routine inspection completed successfully.'),
-    (3, 's3://cashcow-diagnostics/service-call-3.pdf', 'Card reader malfunction detected during diagnostics.'),
-    (7, 's3://cashcow-diagnostics/service-call-7.pdf', 'Cash dispenser hardware failure confirmed.'),
-    (9, 's3://cashcow-diagnostics/service-call-9.pdf', 'ATM network and power diagnostics completed.');
+-- INSERT INTO diagnostic_reports
+--     (service_call_id, file_url, notes)
+-- VALUES
+--     (1, 's3://diagnostic_reports/service-call-1.pdf', 'Routine inspection completed successfully.'),
+--     (3, 's3://diagnostic_reports/service-call-3.pdf', 'Card reader malfunction detected during diagnostics.'),
+--     (7, 's3://diagnostic_reports/service-call-7.pdf', 'Cash dispenser hardware failure confirmed.'),
+--     (9, 's3://diagnostic_reports/service-call-9.pdf', 'ATM network and power diagnostics completed.');
 
 -- ============================================================
 -- 6. RESET AUTO-INCREMENT SEQUENCES

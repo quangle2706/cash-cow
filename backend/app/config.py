@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     #value for our JWT (Json Web Token)
     secret_key: str
     frontend_origin: str = "http://localhost:5173"
+    aws_region: str = "us-east-1"
+    s3_bucket_name: str = "cashcow-diagnostics-ql"
 
     #tells pydantic-settings to actually read from backend/.env and fill these fields from it
     model_config = SettingsConfigDict(
