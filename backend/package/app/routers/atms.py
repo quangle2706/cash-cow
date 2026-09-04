@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_db, require_role
 from app.models.enums import ATMStatus
-from app.models.atm import ATM
+from app.models import ATM, User, UserRole
 from app.schemas.atm import ATMCreate, ATMRead
 
 # Every request comes under /atms and has to do with atms
@@ -35,47 +35,17 @@ async def list_atms(
     #     ATM.status != ATMStatus.MAINTENANCE
     # )
 
-    # Check for max_cash_level query param
-    # if max_cash_level is not None:
-    #     statement = statement.where(ATM.cash_level < max_cash_level)
-    statement = statement.order_by(ATM.id)
-
-    result = await db.execute(statement)
-
-    return list(result.scalars().all())
-
-@router.get("", response_model=list[ATMRead])
-async def list_active_atms(
-    max_cash_level: Decimal | None = Query(
-        # This is a query param, used for filtering all of our results
-        default = None, # This makes it optional
-        ge=0, # greater than or equal ...
-        le=100,
-        description="Only return atms strictly below this cash level percentage"
-    ),
-    db: AsyncSession=Depends(get_db)):
-    # We need to be able to interact with the DB, so we need our session object to execute those statement
-    # We are DEPENDENT on the session object
-    # TODO add in optional query parameter for filtering based on power level (Business Question #1)
-    
-    # Create our statement for the DB
-    statement = select(ATM).where(
-        ATM.status != ATMStatus.OFFLINE,
-        ATM.status != ATMStatus.MAINTENANCE
-    )
-
-    # Check for max_cash_level query param
+    # Filter results when a cash threshold is provided.
     if max_cash_level is not None:
-        statement = statement.where(ATM.cash_level < max_cash_level)
+        statement = statement.where(ATM.cash_level >= max_cash_level)
     statement = statement.order_by(ATM.id)
 
     result = await db.execute(statement)
 
     return list(result.scalars().all())
 
-
-# Get a specific robot by its id
-# GET /robots/{robot_id} -> robot_id is known as a PATH PARAMETER
+# Get a specific atm by its id
+# GET /atms/{atm_id} -> atm_id is known as a PATH PARAMETER
 @router.get("/{atm_id}", response_model=ATMRead)
 async def get_atm(atm_id: int, db: AsyncSession=Depends(get_db)):
     atm = await db.get(ATM, atm_id)
@@ -89,14 +59,47 @@ async def get_atm(atm_id: int, db: AsyncSession=Depends(get_db)):
 
     return atm
 
-# Let's create a Robot
+#patch a specific atm by its id
+@router.patch("/{atm_id}", response_model=ATMRead)
+async def update_atm(atm_id: int, payload: ATMCreate, db: AsyncSession=Depends(get_db), _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))):
+    atm = await db.get(ATM, atm_id)
+
+    if atm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ATM {atm_id} not found"
+        )
+
+    for key, value in payload.model_dump().items():
+        setattr(atm, key, value)
+
+    await db.commit()
+    await db.refresh(atm)
+    return atm
+
+#delete a specific atm by its id - for admin only
+@router.delete("/{atm_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_atm(atm_id: int, db: AsyncSession=Depends(get_db), _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))):
+    atm = await db.get(ATM, atm_id)
+
+    if atm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ATM {atm_id} not found"
+        )
+
+    await db.delete(atm)
+    await db.commit()
+    return None
+
+# Let's create an ATM
 # POST requests are used for creating new resources or altering state
 @router.post("", response_model=ATMRead, status_code=status.HTTP_201_CREATED)
-async def create_robot(payload: ATMCreate, db: AsyncSession = Depends(get_db)):
+async def create_atm(payload: ATMCreate, db: AsyncSession = Depends(get_db)):
     # We receive the payload as a RobotCreate object
-    # We need it as a Robot object to save with the ORM
+    # We need it as a ATM object to save with the ORM
     atm = ATM(**payload.model_dump())
-    # Dumps the model into the Robot constructor
+    # Dumps the model into the ATM constructor
     db.add(atm)
     await db.commit()
     await db.refresh(atm)

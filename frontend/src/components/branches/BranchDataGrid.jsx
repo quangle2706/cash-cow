@@ -26,6 +26,7 @@ function BranchDataGrid({ onSuccess }) {
 
     //add form and dialog
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedBranch, setSelectedBranch] = useState(null);
     const [formValues, setFormValues] = useState({
         name: '',
         location_region: '',
@@ -58,6 +59,23 @@ function BranchDataGrid({ onSuccess }) {
             }
         }
 
+    const openCreateDialog = () => {
+        setSelectedBranch(null);
+        setFormValues({ name: '', location_region: '', capacity: '', supervisor_id: '' });
+        setDialogOpen(true);
+    };
+
+    const handleRowClick = ({ row }) => {
+        setSelectedBranch(row);
+        setFormValues({
+            name: row.name,
+            location_region: row.location_region,
+            capacity: row.capacity,
+            supervisor_id: row.supervisor_id,
+        });
+        setDialogOpen(true);
+    };
+
         useEffect(() => {
             fetchBranches();
         }, []);
@@ -88,6 +106,35 @@ function BranchDataGrid({ onSuccess }) {
         }
     }
 
+    const handleUpdate = async () => {
+        try {
+            await apiClient.patch(`/branches/${selectedBranch.id}`, {
+                ...formValues,
+                capacity: Number(formValues.capacity),
+                supervisor_id: Number(formValues.supervisor_id),
+            });
+            setDialogOpen(false);
+            setSelectedBranch(null);
+            await fetchBranches();
+            onSuccess?.(`Branch ${formValues.name} updated.`);
+        } catch {
+            setError('Could not update branch');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Delete branch ${selectedBranch.name}?`)) return;
+        try {
+            await apiClient.delete(`/branches/${selectedBranch.id}`);
+            setDialogOpen(false);
+            setSelectedBranch(null);
+            await fetchBranches();
+            onSuccess?.(`Branch ${selectedBranch.name} deleted.`);
+        } catch {
+            setError('Could not delete branch');
+        }
+    };
+
     //shows a spinning progress indicator if loading data
     if (loading) return <CircularProgress />
 
@@ -103,6 +150,7 @@ function BranchDataGrid({ onSuccess }) {
                     rows={branches}
                     columns={columns}
                     getRowId={(row) => row.id}
+                    onRowClick={handleRowClick}
                     rowHeight={44}
                     columnHeaderHeight={45}
                     sx={{
@@ -121,9 +169,9 @@ function BranchDataGrid({ onSuccess }) {
                     }}
                 />
             </Box>
-            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={() => setDialogOpen(true)}>Add Branch</Button>
+            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={openCreateDialog}>Add Branch</Button>
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle sx={{ color: 'black', textAlign: 'center' }} >Add New Branch</DialogTitle>
+                <DialogTitle sx={{ color: 'black', textAlign: 'center' }}>{selectedBranch ? 'Edit Branch' : 'Add New Branch'}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1, minWidth: 300 }}>
                         <TextField label="Name" value={formValues.name} onChange={handleFieldChange('name')} />
@@ -134,7 +182,10 @@ function BranchDataGrid({ onSuccess }) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-                    <Button variant="contained" onClick={handleCreate}>Create</Button>
+                    {selectedBranch && <Button color="error" onClick={handleDelete}>Delete</Button>}
+                    <Button variant="contained" onClick={selectedBranch ? handleUpdate : handleCreate}>
+                        {selectedBranch ? 'Save changes' : 'Create'}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>

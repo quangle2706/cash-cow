@@ -19,7 +19,7 @@ from app.models.enums import ServiceCallStatus, ServiceCallPriority
 router = APIRouter(prefix="/service-calls", tags=["service-calls"])
 
 #list all service calls
-@router.get("/", response_model=list[ServiceCallRead])
+@router.get("", response_model=list[ServiceCallRead])
 async def list_service_calls(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
@@ -30,7 +30,7 @@ async def list_service_calls(
     return service_calls
 
 #create new service call
-@router.post("/", response_model=ServiceCallRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ServiceCallRead, status_code=status.HTTP_201_CREATED)
 async def create_service_call(
     payload: ServiceCallCreate,
     db: AsyncSession = Depends(get_db),
@@ -59,6 +59,38 @@ async def create_service_call(
     await db.refresh(service_call)
     return service_call
 
+@router.patch("/{service_call_id}", response_model=ServiceCallRead)
+async def update_service_call(
+    service_call_id: int,
+    payload: ServiceCallCreate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+) -> ServiceCall:
+    service_call = await db.get(ServiceCall, service_call_id)
+    if service_call is None:
+        raise HTTPException(status_code=404, detail=f"Service call '{service_call_id}' not found")
+    if await db.get(ATM, payload.atm_id) is None:
+        raise HTTPException(status_code=404, detail=f"ATM '{payload.atm_id}' not found")
+    if await db.get(Technician, payload.technician_id) is None:
+        raise HTTPException(status_code=404, detail=f"Technician '{payload.technician_id}' not found")
+    for key, value in payload.model_dump().items():
+        setattr(service_call, key, value)
+    await db.commit()
+    await db.refresh(service_call)
+    return service_call
+
+@router.delete("/{service_call_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_service_call(
+    service_call_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+):
+    service_call = await db.get(ServiceCall, service_call_id)
+    if service_call is None:
+        raise HTTPException(status_code=404, detail=f"Service call '{service_call_id}' not found")
+    await db.delete(service_call)
+    await db.commit()
+
 @router.get("/discrepancies", response_model=list[DiscrepancyRead])
 async def list_colocation_discrepancies(
     #to set filter by priority, status
@@ -72,7 +104,7 @@ async def list_colocation_discrepancies(
     ),
     db: AsyncSession=Depends(get_db),
     #add role to use this API
-    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN))
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
 ):
     """ Answer business question #2 """
     statement = (

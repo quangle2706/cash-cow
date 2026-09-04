@@ -28,7 +28,7 @@ router = APIRouter(
 )
 
 #list all diagnostic reports
-@router.get("", response_model=list[DiagnosticReportRead])
+@router.get("/", response_model=list[DiagnosticReportRead])
 async def list_diagnostic_reports(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN, UserRole.FIELD_TECHNICIAN, UserRole.AUDITOR))
@@ -41,7 +41,7 @@ async def list_diagnostic_reports(
 
 
 @router.post(
-    "",
+    "/",
     response_model=DiagnosticReportRead
 )
 async def upload_diagnostic_report(

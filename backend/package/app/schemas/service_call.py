@@ -32,6 +32,13 @@ class ServiceCallRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ServiceCallCreate(BaseModel):
+    title: str
+    priority: ServiceCallPriority
+    status: ServiceCallStatus
+    atm_id: int
+    technician_id: int
+
 """
 Response model to answer business #3:
 The service call completion/failure ratio broken down by ATM models
@@ -39,6 +46,7 @@ The service call completion/failure ratio broken down by ATM models
 #response model
 class ServiceCallRatioRead(BaseModel):
     atm_model: str
+    total_count: int
     completed_count: int
     failed_count: int
     completion_failure_ratio: float | None #incase failure count is 0

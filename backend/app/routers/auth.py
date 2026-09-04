@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db, require_role
 from app.models import User, UserRole
-from app.schemas.user import Token, UserCreate, UserRead
+from app.schemas.user import Token, UserCreate, UserRead, UserUpdate
 from app.security import create_access_token, hash_password, verify_password
 
 #First step is to set up the router for our endpoints
@@ -84,3 +84,33 @@ async def list_users(
     result = await db.execute(statement)
     users = result.scalars().all()
     return users
+
+@router.patch("/users/{user_id}", response_model=UserRead)
+async def update_user(
+    user_id: int,
+    payload: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+) -> User:
+    user = await db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+    user.username = payload.username
+    user.role = payload.role
+    if payload.password:
+        user.hashed_password = hash_password(payload.password)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+):
+    user = await db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+    await db.delete(user)
+    await db.commit()

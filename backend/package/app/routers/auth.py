@@ -4,12 +4,12 @@ Authentication endpoints
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db, require_role
 from app.models import User, UserRole
-from app.schemas.user import Token, UserCreate, UserRead
+from app.schemas.user import Token, UserCreate, UserRead, UserUpdate
 from app.security import create_access_token, hash_password, verify_password
 
 #First step is to set up the router for our endpoints
@@ -25,7 +25,7 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ) -> Token:
     #our db call to select our user
-    result = await db.execute(select(User).where(User.username == form_data.username))
+    result = await db.execute(select(User).where(User.username == form_data.username.lower()))
     user = result.scalar_one_or_none()
 
     #check to verify if the password is correct
@@ -50,7 +50,8 @@ async def register_user(
     _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
 ) -> User:
     #checking if the username already exists in the db
-    existing = await db.execute(select(User).where(User.username == payload.username))
+    ##func.lower()
+    existing = await db.execute(select(User).where(func.lower(User.username) == payload.username.lower()))
     if existing.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -72,3 +73,44 @@ async def register_user(
     #refresh the user object so that we get the id the db generated
     await db.refresh(user)
     return user
+
+#list all users
+@router.get("/users", response_model=list[UserRead])
+async def list_users(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))
+) -> list[UserRead]:
+    statement = select(User)
+    result = await db.execute(statement)
+    users = result.scalars().all()
+    return users
+
+@router.patch("/users/{user_id}", response_model=UserRead)
+async def update_user(
+    user_id: int,
+    payload: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+) -> User:
+    user = await db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+    user.username = payload.username
+    user.role = payload.role
+    if payload.password:
+        user.hashed_password = hash_password(payload.password)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+):
+    user = await db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+    await db.delete(user)
+    await db.commit()

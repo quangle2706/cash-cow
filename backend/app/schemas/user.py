@@ -13,6 +13,11 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(min_length=8)
 
+class UserUpdate(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    role: UserRole
+    password: str | None = Field(default=None, min_length=8)
+
 #note that we are not adding the password field to the UserRead schema,
 #since we do not want to expose the hashed password in API responses
 class UserRead(UserBase):

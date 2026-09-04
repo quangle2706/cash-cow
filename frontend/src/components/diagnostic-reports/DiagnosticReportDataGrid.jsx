@@ -14,8 +14,8 @@ const columns = [
         headerName: "File URL",
         width: 310,
         renderCell: ({ value }) => (
-            <a href={value} target="_blank" rel="noreferrer">
-                Open file
+            <a href={value} target="_blank">
+                OPEN LINK FILE
             </a>
         ),
     },
@@ -84,7 +84,7 @@ function DiagnosticReportDataGrid({ onSuccess }) {
             payload.append('note', formValues.notes);
             payload.append('file', selectedFile);
 
-            await apiClient.post('/diagnostic-reports/', payload);
+            await apiClient.post('/diagnostic-reports', payload);
             setDialogOpen(false);
             setFormValues({ service_call_id: '', notes: '' });
             setSelectedFile(null);

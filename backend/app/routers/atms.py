@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_db, require_role
 from app.models.enums import ATMStatus
-from app.models.atm import ATM
+from app.models import ATM, User, UserRole
 from app.schemas.atm import ATMCreate, ATMRead
 
 # Every request comes under /atms and has to do with atms
@@ -58,6 +58,39 @@ async def get_atm(atm_id: int, db: AsyncSession=Depends(get_db)):
         )
 
     return atm
+
+#patch a specific atm by its id
+@router.patch("/{atm_id}", response_model=ATMRead)
+async def update_atm(atm_id: int, payload: ATMCreate, db: AsyncSession=Depends(get_db), _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))):
+    atm = await db.get(ATM, atm_id)
+
+    if atm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ATM {atm_id} not found"
+        )
+
+    for key, value in payload.model_dump().items():
+        setattr(atm, key, value)
+
+    await db.commit()
+    await db.refresh(atm)
+    return atm
+
+#delete a specific atm by its id - for admin only
+@router.delete("/{atm_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_atm(atm_id: int, db: AsyncSession=Depends(get_db), _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN))):
+    atm = await db.get(ATM, atm_id)
+
+    if atm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ATM {atm_id} not found"
+        )
+
+    await db.delete(atm)
+    await db.commit()
+    return None
 
 # Let's create an ATM
 # POST requests are used for creating new resources or altering state

@@ -29,6 +29,7 @@ function ServiceCallDataGrid({ onSuccess }) {
 
     //add form and dialog
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedServiceCall, setSelectedServiceCall] = useState(null);
     const [formValues, setFormValues] = useState({
         title: '',
         priority: '',
@@ -57,6 +58,24 @@ function ServiceCallDataGrid({ onSuccess }) {
                 setLoading(false);
             }
         }
+
+    const openCreateDialog = () => {
+        setSelectedServiceCall(null);
+        setFormValues({ title: '', priority: '', status: '', atm_id: '', technician_id: '' });
+        setDialogOpen(true);
+    };
+
+    const handleRowClick = ({ row }) => {
+        setSelectedServiceCall(row);
+        setFormValues({
+            title: row.title,
+            priority: row.priority,
+            status: row.status,
+            atm_id: row.atm_id,
+            technician_id: row.technician_id,
+        });
+        setDialogOpen(true);
+    };
 
         useEffect(() => {
             fetchServiceCalls();
@@ -88,6 +107,35 @@ function ServiceCallDataGrid({ onSuccess }) {
         }
     }
 
+    const handleUpdate = async () => {
+        try {
+            await apiClient.patch(`/service-calls/${selectedServiceCall.id}`, {
+                ...formValues,
+                atm_id: Number(formValues.atm_id),
+                technician_id: Number(formValues.technician_id),
+            });
+            setDialogOpen(false);
+            setSelectedServiceCall(null);
+            await fetchServiceCalls();
+            onSuccess?.(`Service Call ${formValues.title} updated.`);
+        } catch {
+            setError('Could not update service call');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Delete service call ${selectedServiceCall.title}?`)) return;
+        try {
+            await apiClient.delete(`/service-calls/${selectedServiceCall.id}`);
+            setDialogOpen(false);
+            setSelectedServiceCall(null);
+            await fetchServiceCalls();
+            onSuccess?.(`Service Call ${selectedServiceCall.title} deleted.`);
+        } catch {
+            setError('Could not delete service call');
+        }
+    };
+
     //shows a spinning progress indicator if loading data
     if (loading) return <CircularProgress />
 
@@ -103,6 +151,7 @@ function ServiceCallDataGrid({ onSuccess }) {
                     rows={serviceCalls}
                     columns={columns}
                     getRowId={(row) => row.id}
+                    onRowClick={handleRowClick}
                     rowHeight={44}
                     columnHeaderHeight={45}
                     sx={{
@@ -121,9 +170,9 @@ function ServiceCallDataGrid({ onSuccess }) {
                     }}
                 />
             </Box>
-            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={() => setDialogOpen(true)}>Add Service Call</Button>
+            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={openCreateDialog}>Add Service Call</Button>
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle sx={{ color: 'black', textAlign: 'center' }} >Add New Service Call</DialogTitle>
+                <DialogTitle sx={{ color: 'black', textAlign: 'center' }}>{selectedServiceCall ? 'Edit Service Call' : 'Add New Service Call'}</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1, minWidth: 300 }}>
                         <TextField label="Title" value={formValues.title} onChange={handleFieldChange('title')} />
@@ -148,7 +197,10 @@ function ServiceCallDataGrid({ onSuccess }) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-                    <Button variant="contained" onClick={handleCreate}>Create</Button>
+                    {selectedServiceCall && <Button color="error" onClick={handleDelete}>Delete</Button>}
+                    <Button variant="contained" onClick={selectedServiceCall ? handleUpdate : handleCreate}>
+                        {selectedServiceCall ? 'Save changes' : 'Create'}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>

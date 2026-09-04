@@ -65,6 +65,7 @@ function ATMDataGrid({ onSuccess }) {
 
     //add form and dialog
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedAtm, setSelectedAtm] = useState(null);
     const [formValues, setFormValues] = useState({
         serial_number: '',
         model: '',
@@ -80,38 +81,58 @@ function ATMDataGrid({ onSuccess }) {
     //     //track the component mount status to prevent memory leaks via network request delays
     //     let isMounted = true;
 
-        //pulls our robot fleet data from our backend
-        async function fetchATMs() {
-            setLoading(true);
-            try {
-                const response = await apiClient.get('/atms', 
-                    { params: { max_cash_level: threshold === '' ? undefined : Number(threshold) }}
-                );
-                setATMs(response.data);
-                setError(null);
-                //if (isMounted) setATMs(response.data);
-            } catch {
-                //if (isMounted) setError('Could not load fleet data');
-                setError('Could not load data');
-            } finally {
-                //if (isMounted) setLoading(false);
-                setLoading(false);
-            }
+    //pulls our robot fleet data from our backend
+    async function fetchATMs() {
+        setLoading(true);
+        try {
+            const response = await apiClient.get('/atms', 
+                { params: { max_cash_level: threshold === '' ? undefined : Number(threshold) }}
+            );
+            setATMs(response.data);
+            setError(null);
+            //if (isMounted) setATMs(response.data);
+        } catch {
+            //if (isMounted) setError('Could not load fleet data');
+            setError('Could not load data');
+        } finally {
+            //if (isMounted) setLoading(false);
+            setLoading(false);
         }
+    }
 
-        useEffect(() => {
-            fetchATMs();
-        }, [threshold]);
+    useEffect(() => {
+        fetchATMs();
+    }, [threshold]);
 
-        // fetchATMs();
-        const handleFieldChange = (field) => (event) => {
-            setFormValues((prev) => ({ ...prev, [field]: event.target.value }))
-        }
+    // fetchATMs();
+    const handleFieldChange = (field) => (event) => {
+        setFormValues((prev) => ({ ...prev, [field]: event.target.value }))
+    }
 
-    //     return () => {
-    //         isMounted = false;
-    //     };
-    // }, [threshold]);
+    const openCreateDialog = () => {
+        setSelectedAtm(null);
+        setFormValues({
+            serial_number: '',
+            model: '',
+            cash_level: '',
+            branch_id: '',
+            status: 'Low-Cash',
+        });
+        setDialogOpen(true);
+    };
+
+    const handleRowClick = ({ row }) => {
+        setSelectedAtm(row);
+        setFormValues({
+            serial_number: row.serial_number,
+            model: row.model,
+            cash_level: row.cash_level,
+            branch_id: row.branch_id,
+            status: row.status,
+        });
+        setDialogOpen(true);
+    };
+
 
     //handles the actual creation of a new robot record in the db
     const handleCreate = async() => {
@@ -135,6 +156,36 @@ function ATMDataGrid({ onSuccess }) {
             //a real app would surface this inline in the dialog
         }
     }
+
+    const handleUpdate = async () => {
+        try {
+            await apiClient.patch(`/atms/${selectedAtm.id}`, {
+                ...formValues,
+                cash_level: Number(formValues.cash_level),
+                branch_id: Number(formValues.branch_id),
+            });
+            setDialogOpen(false);
+            setSelectedAtm(null);
+            await fetchATMs();
+            onSuccess?.(`ATM ${formValues.serial_number} updated.`);
+        } catch {
+            setError('Could not update ATM');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Delete ATM ${selectedAtm.serial_number}?`)) return;
+
+        try {
+            await apiClient.delete(`/atms/${selectedAtm.id}`);
+            setDialogOpen(false);
+            setSelectedAtm(null);
+            await fetchATMs();
+            onSuccess?.(`ATM ${selectedAtm.serial_number} deleted.`);
+        } catch {
+            setError('Could not delete ATM');
+        }
+    };
 
     //shows a spinning progress indicator if loading data
     if (loading) return <CircularProgress />
@@ -177,6 +228,7 @@ function ATMDataGrid({ onSuccess }) {
                     rows={atms}
                     columns={columns}
                     getRowId={(row) => row.id}
+                    onRowClick={handleRowClick}
                     rowHeight={44}
                     columnHeaderHeight={45}
                     sx={{
@@ -195,9 +247,11 @@ function ATMDataGrid({ onSuccess }) {
                     }}
                 />
             </Box>
-            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={() => setDialogOpen(true)}>Add ATM</Button>
+            <Button variant="outlined" sx={{ mb: 2, mt: 2 }} onClick={openCreateDialog}>Add ATM</Button>
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle sx={{ color: 'black', textAlign: 'center' }} >Add New ATM</DialogTitle>
+                <DialogTitle sx={{ color: 'black', textAlign: 'center' }}>
+                    {selectedAtm ? 'Edit ATM' : 'Add New ATM'}
+                </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1, minWidth: 300 }}>
                         <TextField label="Serial Number" value={formValues.serial_number} onChange={handleFieldChange('serial_number')} />
@@ -213,7 +267,15 @@ function ATMDataGrid({ onSuccess }) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-                    <Button variant="contained" onClick={handleCreate}>Create</Button>
+                    {selectedAtm && (
+                        <Button color="error" onClick={handleDelete}>Delete</Button>
+                    )}
+                    <Button
+                        variant="contained"
+                        onClick={selectedAtm ? handleUpdate : handleCreate}
+                    >
+                        {selectedAtm ? 'Save changes' : 'Create'}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>

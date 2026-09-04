@@ -82,3 +82,31 @@ async def create_branch(
     await db.refresh(branch)
 
     return branch
+
+@router.patch("/{branch_id}", response_model=BranchRead)
+async def update_branch(
+    branch_id: int,
+    payload: BranchCreate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+) -> BranchRead:
+    branch = await db.get(Branch, branch_id)
+    if branch is None:
+        raise HTTPException(status_code=404, detail=f"Branch {branch_id} not found")
+    for key, value in payload.model_dump().items():
+        setattr(branch, key, value)
+    await db.commit()
+    await db.refresh(branch)
+    return branch
+
+@router.delete("/{branch_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_branch(
+    branch_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.OPERATIONS_ADMIN)),
+):
+    branch = await db.get(Branch, branch_id)
+    if branch is None:
+        raise HTTPException(status_code=404, detail=f"Branch {branch_id} not found")
+    await db.delete(branch)
+    await db.commit()
